@@ -3,83 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ege Adisyon - Basit Sistem</title>
+    <title>Ege Turks Restaurant - Adisyon</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1920');
+            /* Arka plana senin yüklediğin logoyu koyduk, karartma ekledik ki yazılar okunsun */
+            background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('1000046550.jpg');
             background-size: cover;
             background-attachment: fixed;
             background-position: center;
+            font-family: sans-serif;
         }
-        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); }
+        .table-btn { transition: all 0.2s active:scale-95; }
     </style>
 </head>
 <body class="text-white min-h-screen">
 
+    <div id="top-bar" class="hidden flex justify-between p-4 max-w-4xl mx-auto">
+        <button onclick="toggleLang()" class="glass px-4 py-2 rounded-lg text-sm font-bold uppercase tracking-widest">
+            <i class="fa-solid fa-globe"></i> <span id="lang-text">NL</span>
+        </button>
+        <button onclick="logout()" class="bg-red-500/60 px-4 py-2 rounded-lg text-sm uppercase">Çıkış</button>
+    </div>
+
     <div id="login-screen" class="flex items-center justify-center min-h-screen p-4">
-        <div class="glass p-8 rounded-3xl w-full max-w-sm text-center">
-            <h1 class="text-2xl font-bold mb-8 uppercase tracking-widest">Garson Seçimi</h1>
+        <div class="glass p-8 rounded-[40px] w-full max-w-sm text-center shadow-2xl">
+            <img src="1000046550.jpg" class="w-24 h-24 mx-auto rounded-full mb-6 border-2 border-white/20 object-cover shadow-lg">
+            <h1 id="login-title" class="text-xl font-bold mb-8 tracking-widest">KIES OBER / GARSON SEÇ</h1>
             <div class="flex flex-col gap-4">
-                <button onclick="login('Rotinda')" class="bg-white/20 hover:bg-white/30 py-4 rounded-xl text-xl transition">Rotinda</button>
-                <button onclick="login('Göksel')" class="bg-white/20 hover:bg-white/30 py-4 rounded-xl text-xl transition">Göksel</button>
+                <button onclick="login('Rotinda')" class="bg-white/10 hover:bg-white/20 border border-white/10 py-5 rounded-2xl text-2xl font-light transition shadow-lg">Rotinda</button>
+                <button onclick="login('Göksel')" class="bg-white/10 hover:bg-white/20 border border-white/10 py-5 rounded-2xl text-2xl font-light transition shadow-lg">Göksel</button>
             </div>
         </div>
     </div>
 
     <div id="tables-screen" class="hidden p-4 max-w-4xl mx-auto">
-        <header class="flex justify-between items-center py-6 border-b border-white/10 mb-6">
-            <div>
-                <p class="text-xs opacity-60 uppercase">Aktif Garson</p>
-                <h2 id="waiter-name" class="text-xl font-bold"></h2>
-            </div>
-            <button onclick="logout()" class="bg-red-500/80 px-4 py-2 rounded-lg text-sm">Çıkış</button>
-        </header>
+        <div class="mb-6">
+            <p id="waiter-label" class="text-[10px] opacity-50 uppercase tracking-[4px]">Aktif Garson</p>
+            <h2 id="waiter-name" class="text-3xl font-light italic"></h2>
+        </div>
         
-        <div class="grid grid-cols-3 sm:grid-cols-5 gap-4" id="tables-grid">
-            </div>
+        <div class="grid grid-cols-3 sm:grid-cols-5 gap-4" id="tables-grid"></div>
     </div>
 
     <div id="order-screen" class="hidden p-4 max-w-lg mx-auto">
-        <button onclick="showTables()" class="mb-4 flex items-center gap-2 opacity-70"><i class="fa-solid fa-arrow-left"></i> Geri</button>
-        <div class="glass rounded-3xl p-6">
-            <h2 id="selected-table-title" class="text-2xl font-bold mb-6 border-b border-white/10 pb-2 text-center">Masa</h2>
+        <button onclick="showTables()" class="mb-6 flex items-center gap-2 opacity-60 text-sm uppercase tracking-widest">
+            <i class="fa-solid fa-chevron-left"></i> <span id="back-text">Geri</span>
+        </button>
+        
+        <div class="glass rounded-[35px] p-6 shadow-2xl">
+            <h2 id="selected-table-title" class="text-3xl font-light mb-8 text-center tracking-tighter">Masa</h2>
             
-            <div class="grid grid-cols-1 gap-3 mb-8">
-                <button onclick="addItem('Frisdrank', 3)" class="flex justify-between items-center bg-emerald-600 p-4 rounded-xl font-bold">
-                    <span>Frisdrank</span> <span>3€</span>
+            <div class="grid grid-cols-3 gap-3 mb-10">
+                <button onclick="addItem('Frisdrank', 3)" class="flex flex-col items-center justify-center bg-blue-600/40 p-4 rounded-2xl border border-blue-400/30">
+                    <span class="text-xs mb-1">Frisdrank</span><span class="font-bold">3€</span>
                 </button>
-                <button onclick="addItem('Bier', 3)" class="flex justify-between items-center bg-emerald-600 p-4 rounded-xl font-bold">
-                    <span>Bier</span> <span>3€</span>
+                <button onclick="addItem('Bier', 3)" class="flex flex-col items-center justify-center bg-orange-600/40 p-4 rounded-2xl border border-orange-400/30">
+                    <span class="text-xs mb-1">Bier</span><span class="font-bold">3€</span>
                 </button>
-                <button onclick="addItem('Wijn', 5)" class="flex justify-between items-center bg-emerald-600 p-4 rounded-xl font-bold">
-                    <span>Wijn</span> <span>5€</span>
+                <button onclick="addItem('Wijn', 5)" class="flex flex-col items-center justify-center bg-purple-600/40 p-4 rounded-2xl border border-purple-400/30">
+                    <span class="text-xs mb-1">Wijn</span><span class="font-bold">5€</span>
                 </button>
             </div>
 
-            <div id="current-orders" class="space-y-2 mb-6">
-                </div>
+            <div id="current-orders" class="space-y-3 mb-10 max-h-60 overflow-y-auto"></div>
 
-            <div class="flex justify-between text-xl font-bold mb-6 border-t border-white/10 pt-4">
-                <span>Toplam:</span>
-                <span id="total-price">0€</span>
+            <div class="flex justify-between items-end mb-8 px-2">
+                <span id="total-label" class="text-sm opacity-50 uppercase tracking-widest">Toplam:</span>
+                <span id="total-price" class="text-5xl font-bold tracking-tighter">0€</span>
             </div>
 
-            <button onclick="closeAccount()" class="w-full bg-red-600 py-4 rounded-2xl font-bold text-xl shadow-lg">Hesabı Kapat</button>
+            <button onclick="closeAccount()" id="close-btn" class="w-full bg-red-600 hover:bg-red-500 py-5 rounded-2xl font-bold text-xl transition shadow-[0_0_30px_rgba(220,38,38,0.3)]">HESABI KAPAT</button>
         </div>
     </div>
 
     <script>
         let currentWaiter = localStorage.getItem('waiter') || null;
         let orders = JSON.parse(localStorage.getItem('orders')) || {};
+        let lang = localStorage.getItem('lang') || 'nl';
         let activeTable = null;
 
-        // Sayfa ilk açıldığında kontrol et
-        window.onload = () => {
-            if (currentWaiter) {
-                showTables();
-            }
+        const texts = {
+            tr: { back: "Geri", total: "Toplam", close: "HESABI KAPAT", empty: "BOŞ", waiter: "Aktif Garson" },
+            nl: { back: "Terug", total: "Totaal", close: "AFREKENEN", empty: "LEEG", waiter: "Actieve Ober" }
+        };
+
+        window.onload = () => { if (currentWaiter) showTables(); updateLangUI(); }
+
+        function toggleLang() {
+            lang = lang === 'nl' ? 'tr' : 'nl';
+            localStorage.setItem('lang', lang);
+            updateLangUI();
+            if(activeTable) updateOrderList();
+            renderTables();
+        }
+
+        function updateLangUI() {
+            document.getElementById('lang-text').innerText = lang.toUpperCase();
+            document.getElementById('back-text').innerText = texts[lang].back;
+            document.getElementById('total-label').innerText = texts[lang].total;
+            document.getElementById('close-btn').innerText = texts[lang].close;
+            document.getElementById('waiter-label').innerText = texts[lang].waiter;
         }
 
         function login(name) {
@@ -88,15 +114,13 @@
             showTables();
         }
 
-        function logout() {
-            localStorage.removeItem('waiter');
-            location.reload();
-        }
+        function logout() { localStorage.clear(); location.reload(); }
 
         function showTables() {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('order-screen').classList.add('hidden');
             document.getElementById('tables-screen').classList.remove('hidden');
+            document.getElementById('top-bar').classList.remove('hidden');
             document.getElementById('waiter-name').innerText = currentWaiter;
             renderTables();
         }
@@ -108,9 +132,9 @@
                 const total = calculateTotal(i);
                 const isFull = total > 0;
                 grid.innerHTML += `
-                    <button onclick="openTable(${i})" class="h-24 rounded-2xl flex flex-col items-center justify-center transition ${isFull ? 'bg-orange-500 border-2 border-white' : 'glass opacity-80'}">
-                        <span class="text-2xl font-bold">${i}</span>
-                        ${isFull ? `<span class="text-xs font-bold">${total}€</span>` : '<span class="text-[10px] opacity-50">BOŞ</span>'}
+                    <button onclick="openTable(${i})" class="h-28 rounded-3xl flex flex-col items-center justify-center transition shadow-lg ${isFull ? 'bg-orange-500 border-2 border-white' : 'glass opacity-60'}">
+                        <span class="text-3xl font-light">${i}</span>
+                        <span class="text-[10px] font-bold mt-1">${isFull ? total + '€' : texts[lang].empty}</span>
                     </button>
                 `;
             }
@@ -120,7 +144,7 @@
             activeTable = num;
             document.getElementById('tables-screen').classList.add('hidden');
             document.getElementById('order-screen').classList.remove('hidden');
-            document.getElementById('selected-table-title').innerText = "Masa " + num;
+            document.getElementById('selected-table-title').innerText = "Tafel " + num;
             updateOrderList();
         }
 
@@ -136,14 +160,13 @@
             const totalEl = document.getElementById('total-price');
             list.innerHTML = '';
             let total = 0;
-
             if (orders[activeTable]) {
-                orders[activeTable].forEach((item, index) => {
+                orders[activeTable].forEach(item => {
                     total += item.price;
                     list.innerHTML += `
-                        <div class="flex justify-between items-center bg-white/5 p-3 rounded-lg">
-                            <span>${item.name}</span>
-                            <span>${item.price}€</span>
+                        <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                            <span class="font-light">${item.name}</span>
+                            <span class="font-bold">${item.price}€</span>
                         </div>
                     `;
                 });
@@ -157,17 +180,14 @@
         }
 
         function closeAccount() {
-            if (confirm('Masa ' + activeTable + ' hesabını kapatmak istiyor musunuz?')) {
+            if (confirm('Masa ' + activeTable + ' afrekenen?')) {
                 delete orders[activeTable];
                 save();
                 showTables();
             }
         }
 
-        function save() {
-            localStorage.setItem('orders', JSON.stringify(orders));
-        }
+        function save() { localStorage.setItem('orders', JSON.stringify(orders)); }
     </script>
 </body>
 </html>
-
