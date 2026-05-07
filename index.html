@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ege Adisyon - Basit Sistem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1920');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body class="text-white min-h-screen">
+
+    <div id="login-screen" class="flex items-center justify-center min-h-screen p-4">
+        <div class="glass p-8 rounded-3xl w-full max-w-sm text-center">
+            <h1 class="text-2xl font-bold mb-8 uppercase tracking-widest">Garson Seçimi</h1>
+            <div class="flex flex-col gap-4">
+                <button onclick="login('Rotinda')" class="bg-white/20 hover:bg-white/30 py-4 rounded-xl text-xl transition">Rotinda</button>
+                <button onclick="login('Göksel')" class="bg-white/20 hover:bg-white/30 py-4 rounded-xl text-xl transition">Göksel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tables-screen" class="hidden p-4 max-w-4xl mx-auto">
+        <header class="flex justify-between items-center py-6 border-b border-white/10 mb-6">
+            <div>
+                <p class="text-xs opacity-60 uppercase">Aktif Garson</p>
+                <h2 id="waiter-name" class="text-xl font-bold"></h2>
+            </div>
+            <button onclick="logout()" class="bg-red-500/80 px-4 py-2 rounded-lg text-sm">Çıkış</button>
+        </header>
+        
+        <div class="grid grid-cols-3 sm:grid-cols-5 gap-4" id="tables-grid">
+            </div>
+    </div>
+
+    <div id="order-screen" class="hidden p-4 max-w-lg mx-auto">
+        <button onclick="showTables()" class="mb-4 flex items-center gap-2 opacity-70"><i class="fa-solid fa-arrow-left"></i> Geri</button>
+        <div class="glass rounded-3xl p-6">
+            <h2 id="selected-table-title" class="text-2xl font-bold mb-6 border-b border-white/10 pb-2 text-center">Masa</h2>
+            
+            <div class="grid grid-cols-1 gap-3 mb-8">
+                <button onclick="addItem('Frisdrank', 3)" class="flex justify-between items-center bg-emerald-600 p-4 rounded-xl font-bold">
+                    <span>Frisdrank</span> <span>3€</span>
+                </button>
+                <button onclick="addItem('Bier', 3)" class="flex justify-between items-center bg-emerald-600 p-4 rounded-xl font-bold">
+                    <span>Bier</span> <span>3€</span>
+                </button>
+                <button onclick="addItem('Wijn', 5)" class="flex justify-between items-center bg-emerald-600 p-4 rounded-xl font-bold">
+                    <span>Wijn</span> <span>5€</span>
+                </button>
+            </div>
+
+            <div id="current-orders" class="space-y-2 mb-6">
+                </div>
+
+            <div class="flex justify-between text-xl font-bold mb-6 border-t border-white/10 pt-4">
+                <span>Toplam:</span>
+                <span id="total-price">0€</span>
+            </div>
+
+            <button onclick="closeAccount()" class="w-full bg-red-600 py-4 rounded-2xl font-bold text-xl shadow-lg">Hesabı Kapat</button>
+        </div>
+    </div>
+
+    <script>
+        let currentWaiter = localStorage.getItem('waiter') || null;
+        let orders = JSON.parse(localStorage.getItem('orders')) || {};
+        let activeTable = null;
+
+        // Sayfa ilk açıldığında kontrol et
+        window.onload = () => {
+            if (currentWaiter) {
+                showTables();
+            }
+        }
+
+        function login(name) {
+            currentWaiter = name;
+            localStorage.setItem('waiter', name);
+            showTables();
+        }
+
+        function logout() {
+            localStorage.removeItem('waiter');
+            location.reload();
+        }
+
+        function showTables() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('order-screen').classList.add('hidden');
+            document.getElementById('tables-screen').classList.remove('hidden');
+            document.getElementById('waiter-name').innerText = currentWaiter;
+            renderTables();
+        }
+
+        function renderTables() {
+            const grid = document.getElementById('tables-grid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= 15; i++) {
+                const total = calculateTotal(i);
+                const isFull = total > 0;
+                grid.innerHTML += `
+                    <button onclick="openTable(${i})" class="h-24 rounded-2xl flex flex-col items-center justify-center transition ${isFull ? 'bg-orange-500 border-2 border-white' : 'glass opacity-80'}">
+                        <span class="text-2xl font-bold">${i}</span>
+                        ${isFull ? `<span class="text-xs font-bold">${total}€</span>` : '<span class="text-[10px] opacity-50">BOŞ</span>'}
+                    </button>
+                `;
+            }
+        }
+
+        function openTable(num) {
+            activeTable = num;
+            document.getElementById('tables-screen').classList.add('hidden');
+            document.getElementById('order-screen').classList.remove('hidden');
+            document.getElementById('selected-table-title').innerText = "Masa " + num;
+            updateOrderList();
+        }
+
+        function addItem(name, price) {
+            if (!orders[activeTable]) orders[activeTable] = [];
+            orders[activeTable].push({ name, price });
+            save();
+            updateOrderList();
+        }
+
+        function updateOrderList() {
+            const list = document.getElementById('current-orders');
+            const totalEl = document.getElementById('total-price');
+            list.innerHTML = '';
+            let total = 0;
+
+            if (orders[activeTable]) {
+                orders[activeTable].forEach((item, index) => {
+                    total += item.price;
+                    list.innerHTML += `
+                        <div class="flex justify-between items-center bg-white/5 p-3 rounded-lg">
+                            <span>${item.name}</span>
+                            <span>${item.price}€</span>
+                        </div>
+                    `;
+                });
+            }
+            totalEl.innerText = total + "€";
+        }
+
+        function calculateTotal(num) {
+            if (!orders[num]) return 0;
+            return orders[num].reduce((sum, item) => sum + item.price, 0);
+        }
+
+        function closeAccount() {
+            if (confirm('Masa ' + activeTable + ' hesabını kapatmak istiyor musunuz?')) {
+                delete orders[activeTable];
+                save();
+                showTables();
+            }
+        }
+
+        function save() {
+            localStorage.setItem('orders', JSON.stringify(orders));
+        }
+    </script>
+</body>
+</html>
+
